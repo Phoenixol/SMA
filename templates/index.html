@@ -1,0 +1,196 @@
+<!-- الكود الجديد مع زر الكتابة الصوتية -->
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>المساعد الذكي</title>
+  <link href="https://cdn.sa.gov.sa/fonts/saudinewnaskh.css" rel="stylesheet">
+
+  <style>
+
+      #stars, #shooting-stars {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .star {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: moveStar linear infinite;
+    }
+
+    @keyframes moveStar {
+      from { transform: translateY(0); opacity: 1; }
+      to { transform: translateY(100vh); opacity: 0; }
+    }
+
+    .shooting-star {
+      position: absolute;
+      width: 100px;
+      height: 2px;
+      background: linear-gradient(90deg, white, rgba(255,255,255,0));
+      border-radius: 2px;
+      opacity: 0;
+      transform: rotate(-45deg);
+      animation: shooting 2s ease-in-out forwards;
+    }
+
+    @keyframes shooting {
+      0% { transform: translate(0, 0) rotate(-45deg); opacity: 1; }
+      100% { transform: translate(-1000px, 1000px) rotate(-45deg); opacity: 0; }
+    }
+
+    /* (نفس ستايلاتك الحالية بدون تغيير كبير) */
+    body { font-family: 'SaudiNewNaskh', sans-serif; background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%); color: white; margin: 0; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+    header { text-align: center; padding: 20px; font-size: 2rem; font-weight: bold; z-index: 2; position: relative; }
+    .chat-container { flex: 1; max-width: 800px; margin: 20px auto; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 20px; backdrop-filter: blur(10px); display: flex; flex-direction: column; width: 90%; overflow-y: auto; }
+    .chat-title { text-align: center; font-size: 1.5rem; margin-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 10px; }
+    .messages { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .msg { padding: 10px 15px; border-radius: 20px; max-width: 80%; font-size: 1.1rem; line-height: 1.8; word-break: break-word; }
+    .user { background: rgba(173,216,230,0.8); align-self: flex-end; color: #003049; }
+    .bot { background: rgba(255,255,255,0.1); align-self: flex-start; color: #e0e0e0; }
+    .input-container { width: 90%; max-width: 800px; margin: 10px auto; padding: 10px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; backdrop-filter: blur(10px); display: flex; gap: 10px; }
+    form { width: 100%; display: flex; gap: 10px; }
+    input { flex: 1 1 auto; padding: 14px 20px; border-radius: 30px; border: 1px solid #ccc; outline: none; font-size: 1rem; }
+    button { padding: 14px 20px; border: none; background: linear-gradient(90deg, #00c9ff, #92fe9d); color: black; font-weight: bold; border-radius: 30px; cursor: pointer; font-size: 1rem; }
+    #voice-btn { background: linear-gradient(90deg, #00c9ff, #92fe9d); color: black; font-weight: bold; border-radius: 30px; cursor: pointer; font-size: 1rem; }
+  </style>
+</head>
+<body>
+
+<header>المساعد الذكي</header>
+
+<div id="stars"></div>
+<div id="shooting-stars"></div>
+
+<div class="chat-container">
+  <div class="chat-title">محادثتك مع المساعد</div>
+  <div class="messages" id="chat"></div>
+</div>
+
+<div class="input-container">
+  <form id="chat-form">
+    <input type="text" id="message" placeholder="اكتب رسالتك هنا..." autocomplete="off" required />
+    <button type="submit">إرسال</button>
+    <button type="button" id="voice-btn">🎙️ صوتي</button>
+  </form>
+</div>
+
+<script>
+const form = document.getElementById("chat-form");
+const input = document.getElementById("message");
+const chat = document.getElementById("chat");
+const voiceBtn = document.getElementById("voice-btn");
+
+    function createStars() {
+      const starsContainer = document.getElementById('stars');
+      starsContainer.innerHTML = '';
+      const count = window.innerWidth > 1000 ? 150 : 80;
+      for (let i = 0; i < count; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+        star.style.left = Math.random() * 100 + 'vw';
+        star.style.top = Math.random() * 100 + 'vh';
+        star.style.animationDuration = (10 + Math.random() * 20) + 's';
+        star.style.opacity = Math.random();
+        starsContainer.appendChild(star);
+      }
+    }
+
+    function createShootingStar() {
+      const shootingStarsContainer = document.getElementById('shooting-stars');
+      const star = document.createElement('div');
+      star.classList.add('shooting-star');
+      star.style.top = Math.random() * window.innerHeight * 0.5 + 'px';
+      star.style.left = (Math.random() * window.innerWidth) + 'px';
+      shootingStarsContainer.appendChild(star);
+      setTimeout(() => {
+        star.remove();
+      }, 2000);
+    }
+
+    createStars();
+    setInterval(createShootingStar, 5000);
+
+    window.addEventListener('resize', () => {
+      createStars();
+    });
+
+form.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const msg = input.value.trim();
+  if (!msg) return;
+  addMessage(msg, "user");
+  input.value = "";
+  await sendMessage(msg);
+});
+
+voiceBtn.addEventListener("click", () => {
+  if (!('webkitSpeechRecognition' in window)) {
+    alert("متصفحك لا يدعم التعرف على الصوت.");
+    return;
+  }
+
+  const recognition = new webkitSpeechRecognition();
+  recognition.lang = 'ar-SA';
+  recognition.start();
+
+  recognition.onresult = async (event) => {
+    const transcript = event.results[0][0].transcript;
+    input.value = transcript;
+    addMessage(transcript, "user");
+    await sendMessage(transcript);
+  };
+
+  recognition.onerror = (event) => {
+    alert("حدث خطأ أثناء التعرف على الصوت: " + event.error);
+  };
+});
+
+async function sendMessage(msg) {
+  const typingBubble = document.createElement("div");
+  typingBubble.classList.add("msg", "bot", "typing");
+  typingBubble.innerHTML = '<div class="dot-typing"><span>●</span><span>●</span><span>●</span></div>';
+  chat.appendChild(typingBubble);
+  scrollToBottom();
+
+  try {
+    const response = await fetch("/ask", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: msg }),
+    });
+    const data = await response.json();
+    typingBubble.remove();
+    addMessage(data.reply, "bot");
+  } catch (error) {
+    typingBubble.remove();
+    addMessage("حدث خطأ، حاول مرة أخرى.", "bot");
+  }
+}
+
+function addMessage(text, sender) {
+  const msg = document.createElement("div");
+  msg.classList.add("msg", sender);
+  msg.textContent = text;
+  chat.appendChild(msg);
+  scrollToBottom();
+}
+
+function scrollToBottom() {
+  chat.scrollTop = chat.scrollHeight;
+}
+</script>
+
+</body>
+</html>

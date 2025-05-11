@@ -182,7 +182,7 @@
     let ttsEnabled = true;
     function speak(text) {
       if (!ttsEnabled) return;
-      const clean = text.replace(/[\u{1F300}-\u{1FAFF}]/gu, '').trim();
+      const clean = text.replace(/([\u2700-\u27BF]|[\uE000-\uF8FF]|[\uD83C-\uDBFF\uDC00-\uDFFF]|[\uFE00-\uFE0F]|\u200D|\u2640|\u2642|\u2600-\u26FF|\u23CF|\u23E9-\u23FA|\u1F000-\u1F9FF)/g, '').trim();
       if (!clean) return;
       speechSynthesis.cancel();
       const u = new SpeechSynthesisUtterance(clean);

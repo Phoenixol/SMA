@@ -4,7 +4,6 @@ import pytz
 import requests
 from fuzzywuzzy import fuzz
 import random
-import webbrowser
 
 app = Flask(__name__)
 
@@ -305,11 +304,13 @@ def open_website(msg):
             "موقع الاتحاد السعودي لكرة القدم": "https://www.saff.com.sa"
         }
 
-        for word in links:
+        for word, url in links.items():
             if word in msg:
-                webbrowser.open(links[word])
-                return f"✅ تم فتح {word} لك في علامة تبويب جديدة."
-        return "أي موقع تحب أفتحه لك؟"
+                return {
+                    "reply": f"✅ تم فتح {word} 👇",
+                    "link": url
+                }
+        return {"reply": "❌ الموقع غير معروف."}
 
     # --- واجهة المستخدم ---
 @app.route("/")
@@ -339,7 +340,7 @@ def ask():
             return jsonify({"reply": translate(msg)})
 
         elif is_open_site(msg):
-            return jsonify({"reply": open_website(msg)})
+            return jsonify(open_website(msg))
 
         return jsonify({"reply": "لم أفهم سؤالك تمامًا، جرب بصيغة مختلفة 😊"})
 
